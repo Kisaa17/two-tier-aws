@@ -60,6 +60,5 @@ module "rds" {
   vpc_id              = module.vpc.vpc_id
   db_username         = var.db_username  # Defined in root variables.tf
   db_password         = var.db_password  # Defined in root variables.tf
- #app_security_group_id = module.ec2.ec2_security_group_id
-  app_security_group_id = module.asg.asg_security_group_id
+  app_security_group_id = [module.asg.asg_security_group_id,module.ec2.ec2_security_group_id]
 }

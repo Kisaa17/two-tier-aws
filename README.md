@@ -48,10 +48,8 @@ This project deploys a **redundant, secure, and scalable two-tier architecture**
 ├── modules
 │   ├── vpc
 │   ├── ec2
-│   ├── ec2-private
 │   ├── alb
 │   ├── asg
-│   ├── sg
 │   └── rds
 ├── assets
 │   └── architecture-diagram.png

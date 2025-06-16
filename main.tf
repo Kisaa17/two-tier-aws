@@ -19,11 +19,23 @@ module "ec2" {
 }
 */
 
+module "ec2" {
+  source            = "./modules/ec2"
+  public_subnet_ids = module.vpc.public_subnet_ids
+  private_subnet_ids = module.vpc.private_subnet_ids
+  ami_id           = "ami-05fcfb9614772f051" # Amazon Linux in eu-north-1
+  instance_type    = "t3.micro"
+  vpc_cidr        = module.vpc.vpc_cidr
+  vpc_id          = module.vpc.vpc_id
+  target_group_arn  = module.alb.target_group_arn
+}
+
 
 module "alb" {
   source           = "./modules/alb"
   vpc_id          = module.vpc.vpc_id
   public_subnet_ids = module.vpc.public_subnet_ids
+  target_ids       = module.ec2.instance_ids # Register fixed instances
 }
 
 module "asg" {
@@ -32,10 +44,14 @@ module "asg" {
   instance_type      = "t3.micro"
   public_subnet_ids  = module.vpc.public_subnet_ids
   target_group_arn   = module.alb.target_group_arn
-  #ec2_security_group_id = module.ec2.ec2_security_group_id
-  ec2_security_group_id = module.alb.alb_security_group_id
-  alb_security_group_id = module.alb.alb_security_group_id  # Pass ALB SG to ASG
+  ec2_security_group_id = module.ec2.ec2_security_group_id
+  alb_security_group_id = module.alb.alb_security_group_id
   vpc_id            = module.vpc.vpc_id
+
+  # Scaling policy
+  min_size         = 0   # Start with 0 instances
+  max_size         = 4   # Maximum burst capacity
+  # scaling_threshold = 60 # Scale when CPU > 60%
 }
 
 module "rds" {

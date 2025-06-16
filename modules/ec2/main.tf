@@ -1,11 +1,12 @@
 # Public EC2 Instances (one per public subnet)
 resource "aws_instance" "public" {
-  count                  = length(var.public_subnet_ids)
+  count                  = 2
   ami                    = var.ami_id
   instance_type          = var.instance_type
   subnet_id              = var.public_subnet_ids[count.index]
   vpc_security_group_ids = [aws_security_group.public.id]
   associate_public_ip_address = true
+  user_data              = base64encode(file("${path.module}/user-data.sh"))
 
   tags = {
     Name = "public-instance-${count.index}"
@@ -56,6 +57,8 @@ resource "aws_security_group" "public" {
   }
 }
 
+
+/*
 resource "aws_security_group" "private" {
   name_prefix = "private-sg-"
   vpc_id      = var.vpc_id
@@ -82,7 +85,7 @@ resource "aws_security_group" "private" {
     cidr_blocks      = ["0.0.0.0/0"]
   }
 }
-
+*/
 
 #register EC2 instance with target group
 resource "aws_lb_target_group_attachment" "web" {

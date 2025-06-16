@@ -2,11 +2,6 @@ resource "aws_launch_template" "web" {
   name_prefix   = "web-template-"
   image_id      = var.ami_id
   instance_type = var.instance_type
-  #key_name      = var.key_name
-
-  user_data = base64encode(templatefile("${path.module}/user-data.sh", {
-    server_name = "MyWebServer"
-  }))
 
   network_interfaces {
     associate_public_ip_address = true
@@ -22,9 +17,9 @@ resource "aws_launch_template" "web" {
 }
 
 resource "aws_autoscaling_group" "web" {
-  desired_capacity    = 2
-  max_size            = 2
-  min_size            = 2
+  desired_capacity    = 0 # Start with 0 instances
+  max_size            = 4 # Maximum burst capacity
+  min_size            = 0 # Let scaling policies control this
   vpc_zone_identifier = var.public_subnet_ids  # Spread across AZs
 
   launch_template {
@@ -60,3 +55,31 @@ resource "aws_security_group" "asg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+
+# Scale-out when CPU > 60% for 5 minutes
+resource "aws_autoscaling_policy" "scale_out" {
+  name                   = "scale-out"
+  scaling_adjustment     = 1
+  adjustment_type        = "ChangeInCapacity"
+  cooldown               = 300
+  autoscaling_group_name = aws_autoscaling_group.web.name
+}
+
+/* CloudWatch - enable if it fits the mean
+
+resource "aws_cloudwatch_metric_alarm" "high_cpu" {
+  alarm_name          = "high-cpu"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 2
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/EC2"
+  period              = 300
+  statistic           = "Average"
+  threshold           = 60
+  alarm_actions       = [aws_autoscaling_policy.scale_out.arn]
+
+  dimensions = {
+    AutoScalingGroupName = aws_autoscaling_group.web.name
+  }
+}
+*/

@@ -13,3 +13,5 @@ variable "alb_sg_name" {
   type        = string
   default     = "alb-sg"
 }
+
+variable "target_ids" {}

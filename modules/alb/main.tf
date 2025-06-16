@@ -67,3 +67,9 @@ resource "aws_security_group" "alb" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+
+resource "aws_lb_target_group_attachment" "fixed_instances" {
+  count = length(var.target_ids)
+  target_group_arn = aws_lb_target_group.web.arn
+  target_id        = var.target_ids[count.index]
+}

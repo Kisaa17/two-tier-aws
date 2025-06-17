@@ -80,7 +80,7 @@ This project includes a CI/CD pipeline defined in `.github/workflows/terraform.y
 3. **Validate** – `terraform validate`
 4. **Plan** – `terraform plan`
 5. *(Optional)* **Apply** – Requires manual approval
-6. *(Planned)* **Security Scanning** with `Trivy`
+6. **Security Scanning** with `Trivy`
 
 ### 🔐 GitHub Secrets Required:
 

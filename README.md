@@ -69,6 +69,26 @@ terraform plan
 # Apply configuration
 terraform apply
 ```
+## ⚙️ CI/CD Pipeline (GitHub Actions)
+
+This project includes a CI/CD pipeline defined in `.github/workflows/terraform.yml`.
+
+### ✅ What the pipeline does:
+
+1. **Format Check** – `terraform fmt`
+2. **Initialize** – `terraform init`
+3. **Validate** – `terraform validate`
+4. **Plan** – `terraform plan`
+5. *(Optional)* **Apply** – Requires manual approval
+6. *(Planned)* **Security Scanning** with `Trivy`
+
+### 🔐 GitHub Secrets Required:
+
+| Name | Description |
+|------|-------------|
+| `AWS_ACCESS_KEY_ID` | Your AWS access key |
+| `AWS_SECRET_ACCESS_KEY` | Your AWS secret key |
+| `AWS_REGION` | (e.g., `eu-north-1`) |
 
 ---
 
@@ -89,6 +109,18 @@ db_password = "SuperSecurePass123"
 - Implement SSM Session Manager for SSH-less access
 - Add CloudWatch alarms and metrics dashboards
 - Backup + snapshot policies for RDS
+
+---
+## 🔐 Security Features (Planned / In Progress)
+
+| Feature | Status |
+|--------|--------|
+| ALB WAF integration | 🔜 Planned |
+| IAM least privilege roles | 🔜 Planned |
+| CloudWatch Alarms & Dashboards | 🔜 Planned |
+| Trivy vulnerability scans (containers) | 🔜 Planned |
+| SSM Session Manager (SSH-less access) | 🔜 Planned |
+| RDS Backup + Snapshot Policies | 🔜 Planned |
 
 ---
 

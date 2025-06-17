@@ -1,0 +1,54 @@
+name: IaC Security CI/CD
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  terraform-validate:
+    name: Terraform Init, Plan & Validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+      - name: Terraform Init
+        run: terraform init
+      - name: Terraform Validate
+        run: terraform validate
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan.binary
+      - name: Terraform Show (JSON)
+        run: terraform show -json tfplan.binary > plan.json
+
+  trivy-iac-scan:
+    name: Trivy IaC Scan
+    runs-on: ubuntu-latest
+    needs: terraform-validate
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Trivy
+        uses: aquasecurity/setup-trivy@v0.2.2
+      - name: Scan IaC with Trivy
+        uses: aquasecurity/trivy-action@v0.29.0
+        with:
+          scan-type: fs
+          scan-ref: '.'
+          severity: 'HIGH,CRITICAL'
+        continue-on-error: false
+
+  checkov-iac-scan:
+    name: Checkov Terraform Scan
+    runs-on: ubuntu-latest
+    needs: terraform-validate
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Checkov
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: .
+          framework: terraform
